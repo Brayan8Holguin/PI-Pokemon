@@ -1,0 +1,104 @@
+
+
+.barra {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    height: 90px;
+    background-color: rgba(0, 0, 0, 0.5); /* Negro con 50% de transparencia */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pokemonCard {
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.pageButton {
+    margin: 5px;
+}
+
+.pokemonCard img {
+    background-color: #fff;
+    width: 100px; /* Ajusta este valor según tus necesidades */
+    height: 100px; /* Ajusta este valor según tus necesidades */
+    box-shadow: 0 0 10px 15px white;
+}
+
+.container, .home-page, .content, .barra {
+    width: 100%;
+}
+.back {
+    position: absolute;
+    left: 0;
+}
+
+.agregar {
+    position: absolute;
+    right: 0;
+}
+.botones {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.botones button {
+    padding: 10px 20px; /* Ajusta estos valores según tus necesidades */
+    font-size: 16px; /* Ajusta este valor según tus necesidades */
+    cursor: pointer;
+}
+
+.individualCard {
+    width: 300px; /* Ajusta este valor a lo que necesites */
+    height: 400px;
+    flex-basis: calc(20% - 20px); /* Reducir este valor hará que las tarjetas sean más pequeñas */
+    border: 1px solid #000;
+    background-image: url('https://th.bing.com/th/id/OIP.3l4NNk1P9yx3SqQCt3QmYQHaLd?w=719&h=1112&rs=1&pid=ImgDetMain');
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 10px;
+    padding: 80px;
+    margin: 5px;
+    box-sizing: border-box;
+    
+}
+.home-page {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-page .background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1; /* Asegura que el video esté detrás del contenido */
+}
+
+.home-page .content {
+    position: relative;
+    z-index: 1; /* Asegura que el contenido esté encima del video */
+    /* Añade estilos adicionales para tu contenido aquí */
+}
+.individualCard p {
+    background-color: black;
+    color: white;
+    padding: 10px 20px; /* Aumenta el padding para hacer el cuadro negro más grande */
+}

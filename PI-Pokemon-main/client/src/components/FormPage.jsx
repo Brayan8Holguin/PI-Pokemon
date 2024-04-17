@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import './FormPage.css';
 
 const FormPage = () => {
     const [formData, setFormData] = useState({
@@ -62,78 +63,101 @@ const FormPage = () => {
     const { name, image, life, attack, defense, speed, height, weight, types } = formData;
 
     return (
-        <div>
+        <div className='contenedor'>
             {error && <p>{error}</p>} {/* Muestra el mensaje de error si existe */}
-            <header>
+            
+            
+            <header className='header'>
             <nav>
                 <ul>
                     <li>
-                        <Link to="/home">Home</Link>
+                        <Link className="botonHome" to="/home">Home</Link>
                     </li>
                 </ul>
             </nav>
         </header>
-            <h1>Create a New Pokemon</h1>
-            <form onSubmit={handleSubmit}>
-                <label>
+
+
+
+
+            <form className='formulario' onSubmit={handleSubmit}>
+             <div>
+                <h1 className='Create'>Create a New Pokemon</h1>
+            </div>
+                <label className='Create'>
                     Name:
                     <input type="text" name="name" value={name} onChange={handleChange} required />
                 </label>
+
                 <br />
-                <label>
+
+                <label className='Create'>
                     Image:
                     <input type="text" name="image" value={image} onChange={handleChange} required />
                 </label>
+
                 <br />
-                <label>
+
+                <label className='Create'>
                     Life:
                     <input type="number" name="life" value={life} onChange={handleChange} required />
                 </label>
+
                 <br />
-                <label>
+
+                <label className='Create'>
                     Attack:
                     <input type="number" name="attack" value={attack} onChange={handleChange} required />
                 </label>
+
                 <br />
-                <label>
+
+                <label className='Create'>
                     Defense:
                     <input type="number" name="defense" value={defense} onChange={handleChange} required />
                 </label>
+                
                 <br />
-                <label>
+                <label className='Create'>
                     Speed:
                     <input type="number" name="speed" value={speed} onChange={handleChange} />
                 </label>
+
                 <br />
-                <label>
+                <label className='Create'>
                     Height:
                     <input type="number" name="height" value={height} onChange={handleChange} />
                 </label>
+
                 <br />
-                <label>
+                <label className='Create'>
                     Weight:
                     <input type="number" name="weight" value={weight} onChange={handleChange} />
                 </label>
+
                 <br />
-                <label>
-    Types:
-    <br />
-    <select multiple name="types" value={types} onChange={handleTypeChange}>
-        <option value="fire">Fire</option>
-        <option value="water">Water</option>
-        <option value="grass">Grass</option>
-        <option value="electric">Electric</option>
-        <option value="ice">Ice</option>
-        <option value="fighting">Fighting</option>
-        <option value="poison">Poison</option>
-        {/* Añade más opciones según los tipos de Pokemon que tengas */}
-    </select>
-</label>
-<br />
+                <label className='Create'>
+                    Types:
+                    <br />
+                    <select multiple name="types" value={types} onChange={handleTypeChange}>
+                        <option value="fire">Fire</option>
+                        <option value="water">Water</option>
+                        <option value="grass">Grass</option>
+                        <option value="electric">Electric</option>
+                        <option value="ice">Ice</option>
+                        <option value="fighting">Fighting</option>
+                        <option value="poison">Poison</option>
+                        {/* Añade más opciones según los tipos de Pokemon que tengas */}
+                    </select>
+                </label>
+
                 <br />
+                <br /> 
+
                 <button type="submit">Create Pokemon</button>
             </form>
         </div>
+        
     );
 };
 

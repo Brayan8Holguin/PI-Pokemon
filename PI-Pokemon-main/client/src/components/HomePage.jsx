@@ -18,58 +18,61 @@ const HomePage = () => {
     const indexOfLastPokemon = currentPage * pokemonsPerPage;
     const indexOfFirstPokemon = indexOfLastPokemon - pokemonsPerPage;
     const currentPokemons = filteredPokemons.slice(indexOfFirstPokemon, indexOfLastPokemon);
+    const fetchPokemonsFromAPI = async () => {
+        try {
+            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=897');
+            const pokemonDetails = await Promise.all(
+                response.data.results.map(async (pokemon, id) => {
+                    const detailResponse = await axios.get(pokemon.url);
+                    return { 
+                        ...pokemon, 
+                        id: id + 1, 
+                        image: detailResponse.data.sprites.front_default,
+                        types: detailResponse.data.types.map(type => type.type.name)
+                    };
+                })
+            );
+            setPokemons(pokemonDetails);
+            setFilteredPokemons(pokemonDetails);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchPokemonsFromDB = async () => {
+        try {
+            const response = await axios.get('http://localhost:3001/pokemons');
+            setPokemons(response.data);
+            setFilteredPokemons(response.data);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     useEffect(() => {
-        const fetchPokemons = async () => {
-            try {
-                const response = await axios.get('http://localhost:3001/pokemons');
-                const pokemonDetails = await Promise.all(
-                    response.data.map(async (pokemon) => {
-                        if (pokemon.created) {
-                            // Si el pokemon fue creado a través de un POST, solo extrae el nombre y el tipo
-                            return { 
-                                name: pokemon.name, 
-                                types: pokemon.types
-                            };
-                        } else {
-                            // Si el pokemon no fue creado a través de un POST, extrae toda la información
-                            const detailResponse = await axios.get(pokemon.url);
-                            const id = pokemon.url.split('/').slice(-2, -1)[0]; // Extrae el id del Pokemon de la URL
-                            return { 
-                                ...pokemon, 
-                                id, // Agrega el id al objeto del Pokemon
-                                image: detailResponse.data.sprites.front_default,
-                                types: detailResponse.data.types.map(type => type.type.name)
-                            };
-                        }
-                    })
-                );
-                setPokemons(pokemonDetails);
-                setFilteredPokemons(pokemonDetails);
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        };
-        
-        fetchPokemons();
-    
-        fetchPokemons();
+        fetchPokemonsFromAPI();
+        fetchPokemonsFromDB();
     }, []);
 
     const handleSearch = () => {
         let result = pokemons;
-
+    
         if (searchTerm) {
             result = result.filter(pokemon => pokemon.name.includes(searchTerm));
         }
-
+    
         if (filterType) {
             result = result.filter(pokemon => pokemon.types.includes(filterType));
         }
-
+    
         if (filterOrigin) {
-            result = result.filter(pokemon => pokemon.origin === filterOrigin);
+            if (filterOrigin === 'api') {
+                result = result.filter(pokemon => pokemon.url.includes('pokeapi.co'));
+            } else if (filterOrigin === 'database') {
+                result = result.filter(pokemon => !pokemon.url.includes('pokeapi.co'));
+            }
         }
-
+    
         if (sortOption) {
             const [field, order] = sortOption.split('-');
             result.sort((a, b) => {
@@ -83,7 +86,7 @@ const HomePage = () => {
                 }
             });
         }
-
+    
         setFilteredPokemons(result);
     };
 

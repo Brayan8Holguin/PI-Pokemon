@@ -1,0 +1,46 @@
+.contenedor {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    background-image: url('../Media/paisaje.webp');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.botonHome {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.botonHome:hover {
+    background-color: #e2e6ea;
+}
+
+.formulario {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    width: 30%; /* Ajusta este valor según tus necesidades */
+    height: 50%; /* Ajusta este valor según tus necesidades */
+    max-width: 800px; /* Ajusta este valor según tus necesidades */
+    max-height: 600px; /* Ajusta este valor según tus necesidades */
+    margin: auto;
+    border-radius: 20px;
+}
+
+.Create {
+    color: #fff;
+}

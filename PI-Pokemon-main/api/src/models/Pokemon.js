@@ -4,8 +4,8 @@ module.exports = (sequelize) => {
   // defino el modelo
   const Pokemon = sequelize.define('pokemon', {
     id: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     name: {
@@ -37,3 +37,4 @@ module.exports = (sequelize) => {
 
   return Pokemon; // Devuelve la definición del modelo
 };
+

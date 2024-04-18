@@ -6,7 +6,7 @@ const FormPage = () => {
     const [formData, setFormData] = useState({
         name: '',
         image: '',
-        life: '',
+        hp: '',
         attack: '',
         defense: '',
         speed: '',
@@ -27,7 +27,7 @@ const FormPage = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-
+    
         fetch('http://localhost:3001/pokemons', {
             method: 'POST',
             headers: {
@@ -44,11 +44,12 @@ const FormPage = () => {
                 return response.json();
             })
             .then(data => {
-    history.push('/home');
-})
-.catch(error => {
-    setError(error.message);
-});
+                // Redirige al usuario a la página de detalles del nuevo Pokémon
+                history.push(`/pokemon/${data.id}`);
+            })
+            .catch(error => {
+                setError(error.message);
+            });
     };
 
     const handleTypeChange = (e) => {
@@ -59,7 +60,15 @@ const FormPage = () => {
             types: selectedTypes,
         }));
     };
-
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            setFormData(prevData => ({
+                ...prevData,
+                image: URL.createObjectURL(e.target.files[0]),
+            }));
+        }
+    };
+    
     const { name, image, life, attack, defense, speed, height, weight, types } = formData;
 
     return (
@@ -93,14 +102,14 @@ const FormPage = () => {
 
                 <label className='Create'>
                     Image:
-                    <input type="text" name="image" value={image} onChange={handleChange} required />
+                    <input type="file" accept="image/*" onChange={handleImageChange} />
                 </label>
 
                 <br />
 
                 <label className='Create'>
                     Life:
-                    <input type="number" name="life" value={life} onChange={handleChange} required />
+                    <input type="number" name="hp" value={life} onChange={handleChange} required />
                 </label>
 
                 <br />

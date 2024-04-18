@@ -5,7 +5,8 @@ import LandingPage from './components/LandingPage';
 import HomePage from './components/HomePage';
 import DetailPage from './components/DetailPage';
 import FormPage from './components/FormPage';
-  const App = () => {
+ 
+const App = () => {
     return (
       <Router>
         <div className="App">

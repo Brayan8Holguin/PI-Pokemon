@@ -6,11 +6,14 @@
     left: 0;
     width: 100%;
     height: 90px;
-    background-color: rgba(0, 0, 0, 0.5); /* Negro con 50% de transparencia */
+    background-color: rgba(0, 0, 0, 0.24); /* Negro con 50% de transparencia */
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
+
+
 
 .pokemonCard {
     border-radius: 10px;
@@ -23,6 +26,17 @@
 
 .pageButton {
     margin: 5px;
+}
+button {
+    background-color: #4CAF50;
+    color: white;
+    transition: background-color 0.3s ease; /* Transición suave del color de fondo */
+    /* Resto de las propiedades */
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049; /* Cambia el color de fondo al pasar el cursor por encima */
 }
 
 .pokemonCard img {
@@ -38,11 +52,13 @@
 .back {
     position: absolute;
     left: 0;
+    top: 10px;
 }
 
 .agregar {
     position: absolute;
     right: 0;
+    top: 10px;
 }
 .botones {
     display: flex;
@@ -98,7 +114,8 @@
     /* Añade estilos adicionales para tu contenido aquí */
 }
 .individualCard p {
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.74); 
+    border-radius: 5px;
     color: white;
     padding: 10px 20px; /* Aumenta el padding para hacer el cuadro negro más grande */
 }

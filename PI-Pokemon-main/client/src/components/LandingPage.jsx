@@ -11,7 +11,7 @@ const LandingPage = () => {
             <button onClick={() => { window.location.href = '/home'; }}>
                 Press Start
             </button>
-            <div className="footer">Página creada por Brayan Holgin</div>
+            <div className="footer">Página creada por Brayan Holgín</div>
         </div>
     );
 };

@@ -4,112 +4,135 @@ import './HomePage.css';
 import { Link } from 'react-router-dom';
 import videoSource from '../Media/pokemon-emerald-waterfall-pixel-moewalls-com.mp4'
 
+
 const HomePage = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('');
-    const [filterOrigin, setFilterOrigin] = useState('');
-    const [sortOption, setSortOption] = useState('');
-    const [pokemons, setPokemons] = useState([]);
-    const [filteredPokemons, setFilteredPokemons] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const pokemonsPerPage = 12;
+    const [searchTerm, setSearchTerm] = useState(''); //termino de busqueda 
+    const [filterType, setFilterType] = useState(''); //tipo de filtro
+    const [filterOrigin, setFilterOrigin] = useState(''); //origen de filtro
+    const [sortOption, setSortOption] = useState(''); //opcion de ordenar
+    const [pokemons, setPokemons] = useState([]); //pokemones
+    const [filteredPokemons, setFilteredPokemons] = useState([]); //pokemones filtrados
+    const [currentPage, setCurrentPage] = useState(1); //pagina actual
+    const pokemonsPerPage = 12; //pokemones por pagina
+    const indexOfLastPokemon = currentPage * pokemonsPerPage;//indice del ultimo pokemon
+    const indexOfFirstPokemon = indexOfLastPokemon - pokemonsPerPage;//indice del primer pokemon
+    const currentPokemons = filteredPokemons.slice(indexOfFirstPokemon, indexOfLastPokemon);//pokemones actuales en la pagina actual 
+    
 
 
-    const indexOfLastPokemon = currentPage * pokemonsPerPage;
-    const indexOfFirstPokemon = indexOfLastPokemon - pokemonsPerPage;
-    const currentPokemons = filteredPokemons.slice(indexOfFirstPokemon, indexOfLastPokemon);
-    const fetchPokemonsFromAPI = async () => {
+    const fetchPokemonsFromDB = async () => { //funcion para obtener los pokemones de la base de datos
         try {
-            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=897');
+            const response = await axios.get('http://localhost:3001/pokemons'); //obtener la respuesta de los pokemones
             const pokemonDetails = await Promise.all(
-                response.data.results.map(async (pokemon, id) => {
-                    const detailResponse = await axios.get(pokemon.url);
-                    return { 
-                        ...pokemon, 
-                        id: id + 1, 
-                        image: detailResponse.data.sprites.front_default,
-                        types: detailResponse.data.types.map(type => type.type.name)
-                    };
+                response.data.map(async (pokemon, id) => { //mapeo de los pokemones para obtener sus detalles
+                    if (pokemon.url && pokemon.url.startsWith('http')) { //si la url del pokemon es valida
+                        const pokemonResponse = await axios.get(pokemon.url);//obtener la respuesta del pokemon
+                        const image = pokemonResponse.data.sprites.front_default;//obtener la imagen del pokemon
+                        const types = pokemonResponse.data.types.map(type => type.type.name);//obtener los tipos del pokemon
+                        return { //devolver el pokemon con sus detalles
+                            ...pokemon, //devolver el pokemon
+                            id: id + 1, //devolver el id
+                            image: image,//devolver la imagen
+                            types: types//devolver los tipos 
+                        };
+                    } else {// Si pokemon.url no es una URL válida, devolver el pokemon tal como está
+                        return pokemon;
+                    }
                 })
             );
-            setPokemons(pokemonDetails);
-            setFilteredPokemons(pokemonDetails);
+            setPokemons(pokemonDetails);//setear los pokemones con sus detalles 
+            setFilteredPokemons(pokemonDetails);//setear los pokemones filtrados con sus detalles 
         } catch (error) {
             console.error('Error:', error);
         }
     };
-
-    const fetchPokemonsFromDB = async () => {
-        try {
-            const response = await axios.get('http://localhost:3001/pokemons');
-            setPokemons(response.data);
-            setFilteredPokemons(response.data);
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
-    useEffect(() => {
-        fetchPokemonsFromAPI();
+    
+    useEffect(() => {//useEffect para obtener los pokemones de la base de datos 
         fetchPokemonsFromDB();
     }, []);
+    
 
-    const handleSearch = () => {
-        let result = pokemons;
+
+    const handleSearch = () => {//funcion para buscar pokemones 
+        let result = pokemons;//resultado de los pokemones 
     
-        if (searchTerm) {
-            result = result.filter(pokemon => pokemon.name.includes(searchTerm));
+        if (searchTerm) {//si hay un termino de busqueda 
+            result = result.filter(pokemon => pokemon.name && pokemon.name.includes(searchTerm));//filtrar los pokemones por el termino de busqueda
         }
     
-        if (filterType) {
-            result = result.filter(pokemon => pokemon.types.includes(filterType));
+        if (filterType) {//si hay un tipo de filtro 
+            result = result.filter(pokemon => pokemon.types && pokemon.types.includes(filterType));//filtrar los pokemones por el tipo de filtro
         }
     
-        if (filterOrigin) {
-            if (filterOrigin === 'api') {
-                result = result.filter(pokemon => pokemon.url.includes('pokeapi.co'));
-            } else if (filterOrigin === 'database') {
-                result = result.filter(pokemon => !pokemon.url.includes('pokeapi.co'));
+        if (filterOrigin) {//si hay un origen de filtro 
+            if (filterOrigin === 'api') {//si el origen es de la api 
+                result = result.filter(pokemon => pokemon.url && pokemon.url.includes('pokeapi.co'));//filtrar los pokemones por la api 
+            } else if (filterOrigin === 'database') {//si el origen es de la base de datos 
+                result = result.filter(pokemon => pokemon.url && !pokemon.url.includes('pokeapi.co'));//filtrar los pokemones por la base de datos
             }
         }
     
-        if (sortOption) {
-            const [field, order] = sortOption.split('-');
-            result.sort((a, b) => {
-                if (a[field] === null || b[field] === null) {
-                    return 0;
+        if (sortOption) {//si hay una opcion de ordenar 
+            const [field, order] = sortOption.split('-');//separar el campo y el orden 
+            result.sort((a, b) => {//ordenar los pokemones
+                if (a[field] === null || b[field] === null) {//si el campo es nulo 
+                    return 0;//devolver 0
                 }
-                if (order === 'asc') {
-                    return a[field] > b[field] ? 1 : -1;
-                } else {
-                    return a[field] < b[field] ? 1 : -1;
+                if (order === 'asc') {//si el orden es ascendente
+                    return a[field] > b[field] ? 1 : -1;//devolver 1 si a es mayor que b, sino -1
+                } else {//si el orden es descendente
+                    return a[field] < b[field] ? 1 : -1;//devolver 1 si a es menor que b, sino -1
                 }
             });
         }
     
-        setFilteredPokemons(result);
+        setFilteredPokemons(result);//setear los pokemones filtrados
     };
 
-    const handleTypeFilter = (e) => {
-        setFilterType(e.target.value);
+    useEffect(() => {//useEffect para buscar los pokemones 
+        handleSearch();//buscar los pokemones
+    }, [sortOption]);//cuando cambie la opcion de ordenar
+    
+    const handleTypeFilter = (e) => {// funcion para filtrar por tipo
+        setFilterType(e.target.value);//setear el tipo de filtro
     };
 
-    const handleOriginFilter = (e) => {
-        setFilterOrigin(e.target.value);
+    const handleOriginFilter = (e) => {//funcion para filtrar por origen        
+        setFilterOrigin(e.target.value);// setear el origen de filtro
     };
 
-    const handleSortOption = (e) => {
-        setSortOption(e.target.value);
+    const handleNext = () => {// funcion para ir a la siguiente pagina
+        if (currentPage < Math.ceil(filteredPokemons.length / pokemonsPerPage)) {// si la pagina actual es menor a la cantidad de paginas
+            setCurrentPage(currentPage + 1);// ir a la siguiente pagina
+        }
+    };
+    
+    const handlePrevious = () => { // funcion para ir a la pagina anterior
+        if (currentPage > 1) { // si la pagina actual es mayor a 1
+            setCurrentPage(currentPage - 1); // ir a la pagina anterior
+        }
+    };
+    const handleFirst = () => { // funcion para ir a la primera pagina
+        setCurrentPage(1); // ir a la primera pagina
+    };
+    
+    const handleLast = () => { // funcion para ir a la ultima pagina
+        setCurrentPage(Math.ceil(filteredPokemons.length / pokemonsPerPage)); // ir a la ultima pagina
     };
 
-    const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(filteredPokemons.length / pokemonsPerPage); i++) {
-        pageNumbers.push(i);
+    const handleSortChange = (e) => { // funcion para cambiar la opcion de ordenar
+        setSortOption(e.target.value); // setear la opcion de ordenar
+        handleSearch(); // buscar los pokemones
+    };
+
+    const pageNumbers = []; // numeros de pagina
+    for (let i = 1; i <= Math.ceil(filteredPokemons.length / pokemonsPerPage); i++) { // para cada pagina
+        pageNumbers.push(i); // agregar el numero de pagina
     }
-    return (
-        <div className="container">
+    return ( //retornar el contenido
+        <div className="container">         
             
-        <div className="home-page">
+        <div className="home-page"> 
             <video autoPlay muted loop className="background-video">
                 <source src={videoSource} type="video/mp4" />
             </video>
@@ -117,7 +140,7 @@ const HomePage = () => {
                 <div className='barra'>
                     <div className='botones'>
                         <Link to="/">
-                            <button className='back'>Back</button>
+                            <button className="back">Back</button>
                         </Link>
                     </div>
                     <input
@@ -153,17 +176,16 @@ const HomePage = () => {
                 <option value="database">Database</option>
             </select>
             <button onClick={handleSearch}>Search</button>
-            <select onChange={handleSortOption}>
+            <select onChange={handleSortChange}>
                 <option value="">Sort by</option>
                 <option value="name-desc">Name (A-Z)</option>
                 <option value="name-asc">Name (Z-A)</option>
                 <option value="attack-asc">Attack (Low-High)</option>
                 <option value="attack-desc">Attack (High-Low)</option>
             </select>
-            <button onClick={handleSearch}>Search</button>
             <div className='botones'>
                 <Link to="/create">
-                    <button className='agregar'>Agregar</button>
+                <button className="agregar">Agregar</button>
                 </Link>
             </div>
             </div>
@@ -179,11 +201,10 @@ const HomePage = () => {
                     ))}
                 </div>
                 <div>
-                    {pageNumbers.map(number => (
-                        <button className="pageButton" key={number} onClick={() => setCurrentPage(number)}>
-                            {number}
-                        </button>
-                    ))}
+                    <button className="pageButton" onClick={handleFirst}>Primera</button>
+                    <button className="pageButton" onClick={handlePrevious}>&lt;</button>
+                    <button className="pageButton" onClick={handleNext}>&gt;</button>
+                    <button className="pageButton" onClick={handleLast}>Última</button>
                 </div>
             </div>
         </div>

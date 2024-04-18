@@ -26,7 +26,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -1; /* Asegura que el video esté detrás del contenido */
+    z-index: -1; 
 }
 
 
@@ -36,17 +36,14 @@
     z-index: 1;
     padding: 15px 30px;
     font-size: 20px;
-    color: white;
-    background-color: #42284f;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    animation: buttonEffect 3s infinite; /* Aplica la animación */
-    font-family: 'Press Start 2P', cursive; /* Aplica la fuente */
+    animation: buttonEffect 3s infinite; /* agregar sonido? */
+    font-family: 'Press Start 2P', cursive;
 }
 
 .landing-page button:hover {
-    background-color: #42284f;
     transform: scale(1.1);
 }
 
@@ -55,5 +52,5 @@
     right: 20px;
     bottom: 20px;
     color: #fff;
-    font-size: 14px;
+    font-size: 15px;
 }

@@ -9,7 +9,9 @@
     justify-content: center;
     align-items: center;
 }
-
+.top-margin {
+    margin-top: 80px; /* Ajusta este valor según tus necesidades */
+}
 .card {
     background-image: url('https://th.bing.com/th/id/OIP.3l4NNk1P9yx3SqQCt3QmYQHaLd?w=719&h=1112&rs=1&pid=ImgDetMain');
     background-size: cover;
@@ -18,6 +20,7 @@
     height: 800px; /* Ajusta este valor según tus necesidades */
     box-shadow: 0px 0px 20px 10px rgba(0, 0, 0, 0.5); /* Añade sombreado a los lados */
     /* Resto de las propiedades de .card */
+    padding-top: 20px;
 }
 .pokemon-image {
     width: 50%;

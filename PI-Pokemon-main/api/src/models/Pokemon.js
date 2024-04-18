@@ -1,8 +1,8 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require("sequelize");
 
 module.exports = (sequelize) => {
   // defino el modelo
-  const Pokemon = sequelize.define('pokemon', {
+  const Pokemon = sequelize.define("pokemon", {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -32,9 +32,8 @@ module.exports = (sequelize) => {
     },
     weight: {
       type: DataTypes.INTEGER,
-    }
+    },
   });
 
   return Pokemon; // Devuelve la definición del modelo
 };
-

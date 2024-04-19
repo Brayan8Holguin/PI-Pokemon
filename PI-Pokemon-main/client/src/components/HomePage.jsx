@@ -3,11 +3,12 @@ import axios from "axios";
 import "./HomePage.css";
 import { Link } from "react-router-dom";
 import videoSource from "../Media/pokemon-emerald-waterfall-pixel-moewalls-com.mp4";
-
+import defaultImage from "../Media/pokemonchido.jpg";
 const HomePage = () => {
+  const [types, setTypes] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); //termino de busqueda
   const [filterType, setFilterType] = useState(""); //tipo de filtro
-  const [filterOrigin, setFilterOrigin] = useState(""); //origen de filtro
+  const [originFilter, setFilterOrigin] = useState(""); //origen de filtro
   const [sortOption, setSortOption] = useState(""); //opcion de ordenar
   const [pokemons, setPokemons] = useState([]); //pokemones
   const [filteredPokemons, setFilteredPokemons] = useState([]); //pokemones filtrados
@@ -23,8 +24,10 @@ const HomePage = () => {
   const fetchPokemonsFromDB = async () => {
     try {
       const response = await axios.get("http://localhost:3001/pokemons");
+      const pokemonAPIResponse = await axios.get("https://pokeapi.co/api/v2/pokemon?limit=100");
+      
       const pokemonDetails = await Promise.all(
-        response.data.map(async (pokemon, id) => {
+        [...response.data, ...pokemonAPIResponse.data.results].map(async (pokemon, id) => {
           if (pokemon.url && pokemon.url.startsWith("http")) {
             const pokemonResponse = await axios.get(pokemon.url);
             const image = pokemonResponse.data.sprites.front_default;
@@ -37,12 +40,17 @@ const HomePage = () => {
             return {
               ...pokemon,
               id: id + 1,
-              image: image,
+              image: image, // Usa la imagen de la API para los pokemones de la API
               types: types,
-              attack: attack, 
+              attack: attack,
+              source: 'api',
             };
           } else {
-            return pokemon;
+            return {
+              ...pokemon,
+              image: defaultImage, // Usa la imagen predeterminada para los pokemones de la base de datos
+              source: 'database',
+            };
           }
         })
       );
@@ -52,9 +60,9 @@ const HomePage = () => {
       console.error("Error:", error);
     }
   };
-
+  
   useEffect(() => {
-    //useEffect para obtener los pokemones de la base de datos
+    //useEffect para obtener los pokemones de la base de datos y de la API de Pokémon
     fetchPokemonsFromDB();
   }, []);
 
@@ -76,19 +84,10 @@ const HomePage = () => {
       ); //filtrar los pokemones por el tipo de filtro
     }
 
-    if (filterOrigin) {
-      //si hay un origen de filtro
-      if (filterOrigin === "api") {
-        //si el origen es de la api
-        result = result.filter(
-          (pokemon) => pokemon.url && pokemon.url.includes("pokeapi.co")
-        ); //filtrar los pokemones por la api
-      } else if (filterOrigin === "database") {
-        //si el origen es de la base de datos
-        result = result.filter(
-          (pokemon) => pokemon.url && !pokemon.url.includes("pokeapi.co")
-        ); //filtrar los pokemones por la base de datos
-      }
+    if (originFilter === 'database') {
+      result = result.filter(pokemon => pokemon.source === 'database');
+    } else if (originFilter === 'api') {
+      result = result.filter(pokemon => pokemon.source === 'api');
     }
 
     if (sortOption) {//ordenar por letra
@@ -153,6 +152,10 @@ const HomePage = () => {
     handleSearch(); // buscar los pokemones
   };
 
+  useEffect(() => {
+    axios.get("http://localhost:3001/types")
+      .then(response => setTypes(response.data));
+  }, []);
   
   return (
     //retornar el contenido
@@ -175,26 +178,11 @@ const HomePage = () => {
               placeholder="Search by name"
             />
             <select onChange={handleTypeFilter}>
-              <option value="">All types</option>
-              <option value="normal">Normal</option>
-              <option value="fire">Fire</option>
-              <option value="water">Water</option>
-              <option value="electric">Electric</option>
-              <option value="grass">Grass</option>
-              <option value="ice">Ice</option>
-              <option value="fighting">Fighting</option>
-              <option value="poison">Poison</option>
-              <option value="ground">Ground</option>
-              <option value="flying">Flying</option>
-              <option value="psychic">Psychic</option>
-              <option value="bug">Bug</option>
-              <option value="rock">Rock</option>
-              <option value="ghost">Ghost</option>
-              <option value="dragon">Dragon</option>
-              <option value="dark">Dark</option>
-              <option value="steel">Steel</option>
-              <option value="fairy">Fairy</option>
-            </select>
+  <option value="">All types</option>
+  {types.map(type => (
+    <option key={type.id} value={type.name}>{type.name}</option>
+  ))}
+</select>
             <select onChange={handleOriginFilter}>
               <option value="">All origins</option>
               <option value="api">API</option>

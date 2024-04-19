@@ -1,9 +1,6 @@
-const axios = require('axios');
 const { Pokemon, Type } = require("../db.js");
 
 const findAllPokemons = async (query) => {
-  const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=100');
-  const apiPokemons = response.data.results;
   const DbPokemon = await Pokemon.findAll({ 
     where: query,
     include: {
@@ -15,9 +12,7 @@ const findAllPokemons = async (query) => {
     }
   });
   
-  const allPokemons = apiPokemons.concat(DbPokemon);
-
-  return allPokemons;
+  return DbPokemon;
 };
 
 module.exports = findAllPokemons;

@@ -33,13 +33,13 @@ const HomePage = () => {
             );
             const attack = pokemonResponse.data.stats.find(
               (stat) => stat.stat.name === "attack"
-            ).base_stat; // Asegúrate de que 'attack' exista en los datos de la API
+            ).base_stat;
             return {
               ...pokemon,
               id: id + 1,
               image: image,
               types: types,
-              attack: attack, // Agrega la propiedad 'attack' a los objetos pokemon
+              attack: attack, 
             };
           } else {
             return pokemon;
@@ -91,8 +91,7 @@ const HomePage = () => {
       }
     }
 
-    if (sortOption) {
-      //si hay una opcion de ordenar
+    if (sortOption) {//ordenar por letra
       const [field, order] = sortOption.split("-"); //separar el campo y el orden
       result.sort((a, b) => {
         //ordenar los pokemones
@@ -154,15 +153,7 @@ const HomePage = () => {
     handleSearch(); // buscar los pokemones
   };
 
-  const pageNumbers = []; // numeros de pagina
-  for (
-    let i = 1;
-    i <= Math.ceil(filteredPokemons.length / pokemonsPerPage);
-    i++
-  ) {
-    // para cada pagina
-    pageNumbers.push(i); // agregar el numero de pagina
-  }
+  
   return (
     //retornar el contenido
     <div className="container">
@@ -228,7 +219,6 @@ const HomePage = () => {
               <Link to={`/pokemon/${pokemon.id}`} key={pokemon.id}>
                 <div
                   className="individualCard"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   <img src={pokemon.image} alt={pokemon.name} />
                   <p>Name: {pokemon.name}</p>

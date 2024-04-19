@@ -25,7 +25,7 @@ const cors = require('cors');
 server.use(cors());
 
 // Syncing all the models at once.
-conn.sync({ force: true }).then(() => {
+conn.sync({ alter: true }).then(() => { //aleter: true  para que no se borren los datos de la base de datos
   server.listen(3001, () => {
     console.log('%s listening at 3001'); // eslint-disable-line no-console
   });

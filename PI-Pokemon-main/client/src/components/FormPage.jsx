@@ -1,12 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
+import axios from "axios";
 import "./FormPage.css";
 
-const FormPage = () => {
-  // Componente para crear un nuevo Pokémon
+const typeToId = {
+  normal: 1,
+  fighting: 2,
+  flying: 3,
+  poison: 4,
+  ground: 5,
+  rock: 6,
+  bug: 7,
+  ghost: 8,
+  steel: 9,
+  fire: 10,
+  water: 11,
+  grass: 12,
+  electric: 13,
+  psychic: 14,
+  ice: 15,
+  dragon: 16,
+  dark: 17,
+  fairy: 18,
+  unknown: 19,
+  shadow: 20,
+};
+
+function FormPage() {
+  const [types, setTypes] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("localHost:3001/types")
+      .then((response) => {
+        setTypes(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching types", error);
+      });
+  }, []);
+
   const [formData, setFormData] = useState({
-    // Estado para guardar los datos del nuevo Pokémon
-    name: "", // Valores iniciales
+    name: "",
     image: "",
     hp: "",
     attack: "",
@@ -14,85 +49,60 @@ const FormPage = () => {
     speed: "",
     height: "",
     weight: "",
-    types: [],
+    types: "",
   });
-  const [error, setError] = useState(null); // Estado para guardar un mensaje de error
-  const history = useHistory(); // Hook para redirigir al usuario
+  const [error, setError] = useState(null);
+  const history = useHistory();
 
-  const handleChange = (e) => {
-    // Función para manejar los cambios en los inputs
-    const { name, value } = e.target; // Extrae el nombre y el valor del input
-    setFormData((prevData) => ({
-      //  Actualiza el estado con los nuevos valores
-      ...prevData, // Mantiene los valores que ya tenía
-      [name]: value, // Actualiza el valor que cambió
-    }));
-  };
+  const handleChange = (event) => {
+    const { name, options } = event.target;
 
-  const handleSubmit = (event) => {
-    // Función para manejar el envío del formulario
-    event.preventDefault(); // Evita que el formulario recargue la página
+    if (options) {
+      let value = [];
 
-    fetch("http://localhost:3001/pokemons", {
-      // Hace una petición POST al servidor
-      method: "POST", // Indica que la petición es de tipo POST
-      headers: {
-        // Configura los encabezados de la petición
-        "Content-Type": "application/json", // Indica que la petición envía datos JSON
-      },
-      body: JSON.stringify(formData), // Convierte los datos del estado a JSON y los envía
-    })
-      .then((response) => {
-        // Maneja la respuesta del servidor
-        if (!response.ok) {
-          // Si la respuesta no es exitosa
-          return response.json().then((error) => {
-            // Convierte el mensaje de error a JSON
-            throw new Error(error); // Lanza un error con el mensaje
-          }); // Termina el flujo de la función
+      for (let i = 0; i < options.length; i++) {
+        if (options[i].selected) {
+          value.push(typeToId[options[i].value]);
         }
-        return response.json();
-      })
-      .then((data) => {
-        // Redirige al usuario a la página de detalles del nuevo Pokémon
-        history.push(`/pokemon/${data.id}`);
-      })
-      .catch((error) => {
-        setError(error.message);
-      });
-  };
+      }
 
-  const handleTypeChange = (e) => {
-    // Función para manejar los cambios en el select de tipos
-    const { options } = e.target; // Extrae las opciones del select
-    const selectedTypes = Array.from(options)
-      .filter((option) => option.selected)
-      .map((option) => option.value); // Filtra las opciones seleccionadas y extrae sus valores
-    setFormData((prevData) => ({
-      // Actualiza el estado con los nuevos valores
-      ...prevData, // Mantiene los valores que ya tenía
-      types: selectedTypes, // Actualiza los tipos seleccionados
-    }));
-  };
-  const handleImageChange = (e) => {
-    // Función para manejar los cambios en el input de imagen
-    if (e.target.files[0]) {
-      // Si el usuario seleccionó un archivo
-      setFormData((prevData) => ({
-        // Actualiza el estado con la nueva imagen
-        ...prevData, // Mantiene los valores que ya tenía
-        image: URL.createObjectURL(e.target.files[0]), // Crea un URL para la imagen seleccionada
-      }));
+      setFormData({ ...formData, [name]: value });
+    } else {
+      const { value } = event.target;
+      setFormData({ ...formData, [name]: value });
     }
   };
 
-  const { name, life, attack, defense, speed, height, weight, types } =
-    formData; // Extrae los valores del estado para facilitar su uso
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:3001/pokemons", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error);
+      }
+
+      const data = await response.json();
+      history.push(`/pokemon/${data.id}`);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const { name, life, attack, defense, speed, height, weight, types: typesData } =
+    formData;
 
   return (
-    // Renderiza el formulario
     <div className="contenedor">
-      {error && <p>{error}</p>} {/* Muestra el mensaje de error si existe */}
+      {error && <p>{error}</p>}
       <header className="header">
         <nav>
           <ul>
@@ -117,13 +127,6 @@ const FormPage = () => {
             onChange={handleChange}
             required
           />
-        </label>
-
-        <br />
-
-        <label className="Create">
-          Image:
-          <input type="file" accept="image/*" onChange={handleImageChange} />
         </label>
 
         <br />
@@ -200,31 +203,13 @@ const FormPage = () => {
 
         <br />
         <label className="Create">
-          Types:
-          <br />
-          <select
-            multiple
-            name="types"
-            value={types}
-            onChange={handleTypeChange}
-          >
-            <option value="fire">Fire</option>
-            <option value="water">Water</option>
-            <option value="grass">Grass</option>
-            <option value="electric">Electric</option>
-            <option value="ice">Ice</option>
-            <option value="fighting">Fighting</option>
-            <option value="poison">Poison</option>
-            <option value="ground">Ground</option>
-            <option value="flying">Flying</option>
-            <option value="psychic">Psychic</option>
-            <option value="bug">Bug</option>
-            <option value="rock">Rock</option>
-            <option value="ghost">Ghost</option>
-            <option value="dark">Dark</option>
-            <option value="dragon">Dragon</option>
-            <option value="steel">Steel</option>
-            <option value="fairy">Fairy</option>
+          Type:
+          <select>
+            {types.map((type, index) => (
+              <option key={index} value={type.data}>
+                {type}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -235,6 +220,6 @@ const FormPage = () => {
       </form>
     </div>
   );
-};
+}
 
 export default FormPage;

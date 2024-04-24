@@ -27,7 +27,7 @@ const HomePage = () => {
       const pokemonAPIResponse = await axios.get(
         "https://pokeapi.co/api/v2/pokemon?limit=100"
       );
-
+  
       const pokemonDetails = await Promise.all(
         [...response.data, ...pokemonAPIResponse.data.results].map(
           async (pokemon, id) => {
@@ -51,7 +51,7 @@ const HomePage = () => {
             } else {
               return {
                 ...pokemon,
-                id: id + 1, // Genera un ID para los pokemones de la base de datos
+                id: pokemon.id, // Usa el UUID de la base de datos para los pokemones de la base de datos
                 image: defaultImage,
                 source: "database",
               };

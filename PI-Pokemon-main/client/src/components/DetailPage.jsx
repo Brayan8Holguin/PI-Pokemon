@@ -25,28 +25,28 @@ const DetailPage = () => {
         </Link>
       </header>
       <div className="detail-container">
-        {pokemonDetails && (
-          <div className="card">
-            <p className="card-text top-margin"> ID: {pokemonDetails.id}</p>
-            <p className="card-text">Name: {pokemonDetails.name}</p>
-            {pokemonDetails.sprites ? (
-              <img
-                className="pokemon-image"
-                src={pokemonDetails.sprites.front_default}
-                alt={pokemonDetails.name}
-              />
-            ) : (
-              <img
-                className="pokemon-image"
-                src={defaultImage}
-                alt={pokemonDetails.name}
-              />
-            )}
-            <p className="card-text">Life: {pokemonDetails.hp}</p>
-            <p className="card-text">Attack: {pokemonDetails.attack}</p>
-            <p className="card-text">Defense: {pokemonDetails.defense}</p>
-            <p className="card-text">Speed: {pokemonDetails.speed}</p>
-          </div>
+  {pokemonDetails && (
+    <div className="card">
+      <p className="card-text top-margin"> ID: {pokemonDetails.id}</p>
+      <p className="card-text">Name: {pokemonDetails.name}</p>
+      {pokemonDetails.sprites ? (
+        <img
+          className="pokemon-image"
+          src={pokemonDetails.sprites.front_default}
+          alt={pokemonDetails.name}
+        />
+      ) : (
+        <img
+          className="pokemon-image"
+          src={defaultImage}
+          alt={pokemonDetails.name}
+        />
+      )}
+      <p className="card-text">Life: {pokemonDetails.hp || pokemonDetails.stats.find(stat => stat.stat.name === 'hp').base_stat}</p>
+      <p className="card-text">Attack: {pokemonDetails.attack || pokemonDetails.stats.find(stat => stat.stat.name === 'attack').base_stat}</p>
+      <p className="card-text">Defense: {pokemonDetails.defense || pokemonDetails.stats.find(stat => stat.stat.name === 'defense').base_stat}</p>
+      <p className="card-text">Speed: {pokemonDetails.speed || pokemonDetails.stats.find(stat => stat.stat.name === 'speed').base_stat}</p>
+    </div>
         )}
       </div>
     </div>

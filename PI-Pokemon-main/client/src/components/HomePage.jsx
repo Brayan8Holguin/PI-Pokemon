@@ -103,7 +103,11 @@ const HomePage = () => {
     } else if (originFilter === "api") {
       result = result.filter((pokemon) => pokemon.source === "api");
     }
-
+      if (filterType) {
+    result = result.filter((pokemon) =>
+      pokemon.types.includes(filterType)
+    );
+  }
     if (sortOption) {
       //ordenar por letra
       const [field, order] = sortOption.split("-"); //separar el campo y el orden

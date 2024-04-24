@@ -67,8 +67,8 @@ function FormPage() {
 
   const handleChange = (event) => {
     const { name, options, value } = event.target;
-  
-    if (name === 'types') {
+
+    if (name === "types") {
       let value = [];
       for (let i = 0; i < options.length; i++) {
         if (options[i].selected) {
@@ -77,27 +77,36 @@ function FormPage() {
       }
       setFormData({ ...formData, types: value });
     } else {
-      if (name === 'name' && /[^a-zA-Z]/.test(value)) {
-  alert('Por favor, ingrese solo letras en el nombre.');
-} else {
-  setFormData({ ...formData, [name]: value });
-}
+      if (name === "name" && /[^a-zA-Z]/.test(value)) {
+        alert("Por favor, ingrese solo letras en el nombre.");
+      } else {
+        setFormData({ ...formData, [name]: value });
+      }
     }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    axios.post('http://localhost:3001/pokemons', formData)
-      .then(response => {
-        history.push('/success');
+    axios
+      .post("http://localhost:3001/pokemons", formData)
+      .then((response) => {
+        history.push("/home");
       })
-      .catch(error => {
-        setError('Error creating pokemon');
+      .catch((error) => {
+        setError("Error creating pokemon");
       });
   };
 
-  const { name, life, attack, defense, speed, height, weight, types: typesData } =
-    formData;
+  const {
+    name,
+    life,
+    attack,
+    defense,
+    speed,
+    height,
+    weight,
+    types: typesData,
+  } = formData;
 
   return (
     <div className="contenedor">
@@ -204,12 +213,12 @@ function FormPage() {
         <label className="Create">
           Type:
           <select multiple={true} name="types" onChange={handleChange}>
-  {types.map((type) => (
-    <option key={type.id} value={type.name}>
-      {type.name}
-    </option>
-  ))}
-</select>
+            {types.map((type) => (
+              <option key={type.id} value={type.name}>
+                {type.name}
+              </option>
+            ))}
+          </select>
         </label>
 
         <br />

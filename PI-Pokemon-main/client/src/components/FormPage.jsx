@@ -49,52 +49,51 @@ function FormPage() {
     speed: "",
     height: "",
     weight: "",
-    types: "",
+    types: [],
   });
   const [error, setError] = useState(null);
   const history = useHistory();
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/types")
+      .then((response) => {
+        setTypes(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching types", error);
+      });
+  }, []);
+
   const handleChange = (event) => {
-    const { name, options } = event.target;
-
-    if (options) {
+    const { name, options, value } = event.target;
+  
+    if (name === 'types') {
       let value = [];
-
       for (let i = 0; i < options.length; i++) {
         if (options[i].selected) {
           value.push(typeToId[options[i].value]);
         }
       }
-
-      setFormData({ ...formData, [name]: value });
+      setFormData({ ...formData, types: value });
     } else {
-      const { value } = event.target;
-      setFormData({ ...formData, [name]: value });
+      if (name === 'name' && /[^a-zA-Z]/.test(value)) {
+  alert('Por favor, ingrese solo letras en el nombre.');
+} else {
+  setFormData({ ...formData, [name]: value });
+}
     }
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-
-    try {
-      const response = await fetch("http://localhost:3001/pokemons", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+    axios.post('http://localhost:3001/pokemons', formData)
+      .then(response => {
+        history.push('/success');
+      })
+      .catch(error => {
+        setError('Error creating pokemon');
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error);
-      }
-
-      const data = await response.json();
-      history.push(`/pokemon/${data.id}`);
-    } catch (error) {
-      setError(error.message);
-    }
   };
 
   const { name, life, attack, defense, speed, height, weight, types: typesData } =
@@ -204,13 +203,13 @@ function FormPage() {
         <br />
         <label className="Create">
           Type:
-          <select>
-            {types.map((type, index) => (
-              <option key={index} value={type.data}>
-                {type}
-              </option>
-            ))}
-          </select>
+          <select multiple={true} name="types" onChange={handleChange}>
+  {types.map((type) => (
+    <option key={type.id} value={type.name}>
+      {type.name}
+    </option>
+  ))}
+</select>
         </label>
 
         <br />

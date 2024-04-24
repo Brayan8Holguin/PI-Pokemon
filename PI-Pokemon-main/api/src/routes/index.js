@@ -26,16 +26,7 @@ router.get("/pokemons", async (req, res) => {
 router.get("/pokemons/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    if (id > 984) {
-      const pokemon = await Pokemon.findByPk(id, { include: Type });
-      if (pokemon) {
-        res.status(200).json(pokemon);
-      } else {
-        res
-          .status(404)
-          .json({ error: "No se encontró el pokemon en la base de datos" });
-      }
-    } else {
+    if (!isNaN(id)) {
       const response = await axios.get(
         `https://pokeapi.co/api/v2/pokemon/${id}`
       );
@@ -43,6 +34,15 @@ router.get("/pokemons/:id", async (req, res) => {
         res.status(200).json(response.data);
       } else {
         res.status(404).json({ error: "No se encontró el pokemon en la API" });
+      }
+    } else {
+      const pokemon = await Pokemon.findByPk(id, { include: Type });
+      if (pokemon) {
+        res.status(200).json(pokemon);
+      } else {
+        res
+          .status(404)
+          .json({ error: "No se encontró el pokemon en la base de datos" });
       }
     }
   } catch (error) {

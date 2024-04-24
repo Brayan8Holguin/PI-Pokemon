@@ -24,35 +24,40 @@ const HomePage = () => {
   const fetchPokemonsFromDB = async () => {
     try {
       const response = await axios.get("http://localhost:3001/pokemons");
-      const pokemonAPIResponse = await axios.get("https://pokeapi.co/api/v2/pokemon?limit=100");
-      
+      const pokemonAPIResponse = await axios.get(
+        "https://pokeapi.co/api/v2/pokemon?limit=100"
+      );
+
       const pokemonDetails = await Promise.all(
-        [...response.data, ...pokemonAPIResponse.data.results].map(async (pokemon, id) => {
-          if (pokemon.url && pokemon.url.startsWith("http")) {
-            const pokemonResponse = await axios.get(pokemon.url);
-            const image = pokemonResponse.data.sprites.front_default;
-            const types = pokemonResponse.data.types.map(
-              (type) => type.type.name
-            );
-            const attack = pokemonResponse.data.stats.find(
-              (stat) => stat.stat.name === "attack"
-            ).base_stat;
-            return {
-              ...pokemon,
-              id: id + 1,
-              image: image, // Usa la imagen de la API para los pokemones de la API
-              types: types,
-              attack: attack,
-              source: 'api',
-            };
-          } else {
-            return {
-              ...pokemon,
-              image: defaultImage, // Usa la imagen predeterminada para los pokemones de la base de datos
-              source: 'database',
-            };
+        [...response.data, ...pokemonAPIResponse.data.results].map(
+          async (pokemon, id) => {
+            if (pokemon.url && pokemon.url.startsWith("http")) {
+              const pokemonResponse = await axios.get(pokemon.url);
+              const image = pokemonResponse.data.sprites.front_default;
+              const types = pokemonResponse.data.types.map(
+                (type) => type.type.name
+              );
+              const attack = pokemonResponse.data.stats.find(
+                (stat) => stat.stat.name === "attack"
+              ).base_stat;
+              return {
+                ...pokemon,
+                id: pokemonResponse.data.id, // Usa el ID de la API para los pokemones de la API
+                image: image,
+                types: types,
+                attack: attack,
+                source: "api",
+              };
+            } else {
+              return {
+                ...pokemon,
+                id: id + 1, // Genera un ID para los pokemones de la base de datos
+                image: defaultImage,
+                source: "database",
+              };
+            }
           }
-        })
+        )
       );
       setPokemons(pokemonDetails);
       setFilteredPokemons(pokemonDetails);
@@ -60,7 +65,7 @@ const HomePage = () => {
       console.error("Error:", error);
     }
   };
-  
+
   useEffect(() => {
     //useEffect para obtener los pokemones de la base de datos y de la API de Pokémon
     fetchPokemonsFromDB();
@@ -70,27 +75,37 @@ const HomePage = () => {
     //funcion para buscar pokemones por nombre, tipo, origen y ordenar
     let result = pokemons; //resultado de los pokemones
 
-    if (searchTerm) {
-      //si hay un termino de busqueda
-      result = result.filter(
-        (pokemon) => pokemon.name && pokemon.name.includes(searchTerm)
-      ); //filtrar los pokemones por el termino de busqueda
+    if (sortOption) {
+      //ordenar por letra
+      const [field, order] = sortOption.split("-"); //separar el campo y el orden
+      result.sort((a, b) => {
+        //ordenar los pokemones
+        if (a[field] === null || b[field] === null) {
+          //si el campo es nulo
+          return 0; //devolver 0
+        }
+        if (a[field] === b[field]) {
+          //si los campos son iguales
+          return a.source > b.source ? 1 : -1; //ordenar por origen
+        }
+        if (order === "asc") {
+          //si el orden es ascendente
+          return a[field] > b[field] ? 1 : -1; //devolver 1 si a es mayor que b, sino -1
+        } else {
+          //si el orden es descendente
+          return a[field] < b[field] ? 1 : -1; //devolver 1 si a es menor que b, sino -1
+        }
+      });
     }
 
-    if (filterType) {
-      //si hay un tipo de filtro
-      result = result.filter(
-        (pokemon) => pokemon.types && pokemon.types.includes(filterType)
-      ); //filtrar los pokemones por el tipo de filtro
+    if (originFilter === "database") {
+      result = result.filter((pokemon) => pokemon.source === "database");
+    } else if (originFilter === "api") {
+      result = result.filter((pokemon) => pokemon.source === "api");
     }
 
-    if (originFilter === 'database') {
-      result = result.filter(pokemon => pokemon.source === 'database');
-    } else if (originFilter === 'api') {
-      result = result.filter(pokemon => pokemon.source === 'api');
-    }
-
-    if (sortOption) {//ordenar por letra
+    if (sortOption) {
+      //ordenar por letra
       const [field, order] = sortOption.split("-"); //separar el campo y el orden
       result.sort((a, b) => {
         //ordenar los pokemones
@@ -153,10 +168,11 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    axios.get("http://localhost:3001/types")
-      .then(response => setTypes(response.data));
+    axios
+      .get("http://localhost:3001/types")
+      .then((response) => setTypes(response.data));
   }, []);
-  
+
   return (
     //retornar el contenido
     <div className="container">
@@ -178,11 +194,13 @@ const HomePage = () => {
               placeholder="Search by name"
             />
             <select onChange={handleTypeFilter}>
-  <option value="">All types</option>
-  {types.map(type => (
-    <option key={type.id} value={type.name}>{type.name}</option>
-  ))}
-</select>
+              <option value="">All types</option>
+              {types.map((type) => (
+                <option key={type.id} value={type.name}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
             <select onChange={handleOriginFilter}>
               <option value="">All origins</option>
               <option value="api">API</option>
@@ -205,15 +223,17 @@ const HomePage = () => {
           <div className="pokemonCard">
             {currentPokemons.map((pokemon) => (
               <Link to={`/pokemon/${pokemon.id}`} key={pokemon.id}>
-                <div
-                  className="individualCard"
-                >
+                <div className="individualCard">
                   <img src={pokemon.image} alt={pokemon.name} />
                   <p>Name: {pokemon.name}</p>
                   <p>
                     Types:{" "}
                     {pokemon.types
-                      ? pokemon.types.join(", ")
+                      ? typeof pokemon.types[0] === "string"
+                        ? pokemon.types.join(", ")
+                        : pokemon.types
+                            .map((typeObj) => typeObj.name)
+                            .join(", ")
                       : "No types available"}
                   </p>
                 </div>

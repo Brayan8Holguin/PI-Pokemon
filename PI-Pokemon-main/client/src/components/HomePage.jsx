@@ -28,108 +28,102 @@ const HomePage = () => {
         "https://pokeapi.co/api/v2/pokemon?limit=100"
       );
   
-      const pokemonDetails = await Promise.all(
-        [...response.data, ...pokemonAPIResponse.data.results].map(
-          async (pokemon, id) => {
-            if (pokemon.url && pokemon.url.startsWith("http")) {
-              const pokemonResponse = await axios.get(pokemon.url);
-              const image = pokemonResponse.data.sprites.front_default;
-              const types = pokemonResponse.data.types.map(
-                (type) => type.type.name
+      const pokemonDetails = await Promise.all(//promesa para obtener los detalles de los pokemones
+        [...response.data, ...pokemonAPIResponse.data.results].map(//mapear los pokemones
+          async (pokemon, id) => {//funcion asincrona para obtener los detalles de los pokemones
+            if (pokemon.url && pokemon.url.startsWith("http")) { //si la url del pokemon empieza con http
+              const pokemonResponse = await axios.get(pokemon.url); //obtener la respuesta del pokemon
+              const image = pokemonResponse.data.sprites.front_default; //imagen del pokemon
+              const types = pokemonResponse.data.types.map( //tipos del pokemon 
+                (type) => type.type.name //nombre del tipo del pokemon 
               );
-              const attack = pokemonResponse.data.stats.find(
-                (stat) => stat.stat.name === "attack"
-              ).base_stat;
-              return {
-                ...pokemon,
+              const attack = pokemonResponse.data.stats.find( //ataque del pokemon
+                (stat) => stat.stat.name === "attack" //nombre del ataque del pokemon
+              ).base_stat; //estadistica base del ataque del pokemon 
+              return { 
+                ...pokemon, 
                 id: pokemonResponse.data.id, // Usa el ID de la API para los pokemones de la API
-                image: image,
-                types: types,
-                attack: attack,
-                source: "api",
+                image: image, //imagen del pokemon
+                types: types, //tipos del pokemon
+                attack: attack, //ataque del pokemon
+                source: "api",  //origen del pokemon
               };
             } else {
-              return {
-                ...pokemon,
+              return {  //si no tiene url
+                ...pokemon, 
                 id: pokemon.id, // Usa el UUID de la base de datos para los pokemones de la base de datos
-                image: defaultImage,
-                source: "database",
+                image: defaultImage, //imagen por defecto
+                source: "database", //origen de la base de datos
               };
             }
           }
         )
       );
-      setPokemons(pokemonDetails);
+      setPokemons(pokemonDetails); 
       setFilteredPokemons(pokemonDetails);
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { 
     //useEffect para obtener los pokemones de la base de datos y de la API de Pokémon
-    fetchPokemonsFromDB();
+    fetchPokemonsFromDB(); 
   }, []);
 
-  const handleSearch = () => {
-    //funcion para buscar pokemones por nombre, tipo, origen y ordenar
-    let result = pokemons; //resultado de los pokemones
-
+  useEffect(() => {
+    let result = [...pokemons];
+  
     if (sortOption) {
-      //ordenar por letra
-      const [field, order] = sortOption.split("-"); //separar el campo y el orden
+      // Ordenar por letra
+      const [field, order] = sortOption.split("-");
       result.sort((a, b) => {
-        //ordenar los pokemones
         if (a[field] === null || b[field] === null) {
-          //si el campo es nulo
-          return 0; //devolver 0
+          return 0;
         }
         if (a[field] === b[field]) {
-          //si los campos son iguales
-          return a.source > b.source ? 1 : -1; //ordenar por origen
+          return a.source > b.source ? 1 : -1;
         }
         if (order === "asc") {
-          //si el orden es ascendente
-          return a[field] > b[field] ? 1 : -1; //devolver 1 si a es mayor que b, sino -1
+          return a[field] > b[field] ? 1 : -1;
         } else {
-          //si el orden es descendente
-          return a[field] < b[field] ? 1 : -1; //devolver 1 si a es menor que b, sino -1
+          return a[field] < b[field] ? 1 : -1;
         }
       });
     }
-
+  
+    console.log("Pokemones antes del filtro por tipo:", result);
+  
+    if (filterType) {
+      result = result.filter((pokemon) => {
+        if (pokemon.source === "database") {
+          // Mapear los tipos de pokemones a un array de strings
+          const pokemonTypes = pokemon.types.map(type => type.name);
+          return pokemonTypes.includes(filterType);
+        } else {
+          return pokemon.types.includes(filterType);
+        }
+      });
+    }
+  
+    console.log("Pokemones después del filtro por tipo:", result);
+  
     if (originFilter === "database") {
       result = result.filter((pokemon) => pokemon.source === "database");
     } else if (originFilter === "api") {
       result = result.filter((pokemon) => pokemon.source === "api");
     }
-      if (filterType) {
-    result = result.filter((pokemon) =>
-      pokemon.types.includes(filterType)
-    );
-  }
-    if (sortOption) {
-      //ordenar por letra
-      const [field, order] = sortOption.split("-"); //separar el campo y el orden
-      result.sort((a, b) => {
-        //ordenar los pokemones
-        if (a[field] === null || b[field] === null) {
-          //si el campo es nulo
-          return 0; //devolver 0
-        }
-        if (order === "asc") {
-          //si el orden es ascendente
-          return a[field] > b[field] ? 1 : -1; //devolver 1 si a es mayor que b, sino -1
-        } else {
-          //si el orden es descendente
-          return a[field] < b[field] ? 1 : -1; //devolver 1 si a es menor que b, sino -1
-        }
-      });
-    }
+  
+    console.log("Pokemones después del filtro por origen:", result);
+  
+    setFilteredPokemons(result);
+  }, [sortOption, filterType, originFilter, pokemons]);
 
-    setFilteredPokemons(result); //setear los pokemones filtrados
+  const handleSortChange = (e) => {
+    // funcion para cambiar la opcion de ordenar por nombre o ataque
+    setSortOption(e.target.value); // setear la opcion de ordenar
   };
-
+  
   const handleTypeFilter = (e) => {
     // funcion para filtrar por type
     setFilterType(e.target.value); //setear el tipo de filtro
@@ -164,12 +158,19 @@ const HomePage = () => {
     // funcion para ir a la ultima pagina
     setCurrentPage(Math.ceil(filteredPokemons.length / pokemonsPerPage)); // ir a la ultima pagina
   };
-
-  const handleSortChange = (e) => {
-    // funcion para cambiar la opcion de ordenar por nombre o ataque
-    setSortOption(e.target.value); // setear la opcion de ordenar
-    handleSearch(); // buscar los pokemones
+  const handleSearchChange = (e) => {
+    // establecer el término de búsqueda
+    setSearchTerm(e.target.value);
+  
+    // filtrar los pokemones basándose en el término de búsqueda
+    const filtered = pokemons.filter(pokemon =>
+      pokemon.name.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+  
+    // establecer los pokemones filtrados
+    setFilteredPokemons(filtered);
   };
+ 
 
   useEffect(() => {
     axios
@@ -192,11 +193,10 @@ const HomePage = () => {
               </Link>
             </div>
             <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name"
-            />
+  type="text"
+  value={searchTerm}
+  onChange={handleSearchChange}
+/>
             <select onChange={handleTypeFilter}>
               <option value="">All types</option>
               {types.map((type) => (
@@ -210,13 +210,13 @@ const HomePage = () => {
               <option value="api">API</option>
               <option value="database">Database</option>
             </select>
-            <button onClick={handleSearch}>Search</button>
+            
             <select onChange={handleSortChange}>
               <option value="">Sort by</option>
-              <option value="name-desc">Name (A-Z)</option>
-              <option value="name-asc">Name (Z-A)</option>
-              <option value="attack-asc">Attack (High-Low)</option>
-              <option value="attack-desc">Attack (Low-High)</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="attack-desc">Attack (High-Low)</option>
+              <option value="attack-asc">Attack (Low-High)</option>
             </select>
             <div className="botones">
               <Link to="/create">

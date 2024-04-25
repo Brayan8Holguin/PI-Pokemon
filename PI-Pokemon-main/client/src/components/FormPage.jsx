@@ -65,29 +65,29 @@ function FormPage() {
       });
   }, []);
 
-  const handleChange = (event) => {
-    const { name, options, value } = event.target;
+  const handleChange = (event) => {//maneja el cambio de los inputs del formulario
+    const { name, options, value } = event.target;//obtiene el nombre, las opciones y el valor del evento que se esta manejando 
 
-    if (name === "types") {
-      let value = [];
-      for (let i = 0; i < options.length; i++) {
-        if (options[i].selected) {
-          value.push(typeToId[options[i].value]);
+    if (name === "types") {//si el nombre es igual a types 
+      let value = []; //crea un array vacio 
+      for (let i = 0; i < options.length; i++) { //recorre las opciones 
+        if (options[i].selected) { //si la opcion esta seleccionada 
+          value.push(typeToId[options[i].value]); //agrega al array el id del tipo 
         }
       }
-      setFormData({ ...formData, types: value });
-    } else {
-      if (name === "name" && /[^a-zA-Z]/.test(value)) {
-        alert("Por favor, ingrese solo letras en el nombre.");
+      setFormData({ ...formData, types: value }); //setea el estado con el array de tipos 
+    } else { 
+      if (name === "name" && /[^a-zA-Z]/.test(value)) { //si el nombre es igual a name y el valor no es una letra
+        alert("Por favor, ingrese solo letras en el nombre."); //muestra un alerta 
       } else {
-        setFormData({ ...formData, [name]: value });
+        setFormData({ ...formData, [name]: value }); //setea el estado con el nombre y el valor 
       }
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    axios
+  const handleSubmit = (event) => { //maneja el envio del formulario
+    event.preventDefault(); //previene el comportamiento por defecto del formulario
+    axios 
       .post("http://localhost:3001/pokemons", formData)
       .then((response) => {
         history.push("/home");
